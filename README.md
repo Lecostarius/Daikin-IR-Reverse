@@ -9,7 +9,8 @@ found that there is a 38 kHz carrier, and that the pulse coding seems to be the 
 However, my remote creates a preamble of 6 "0" bits when the button is pressed, and after that, a pause of 30 ms. After the pause, it launches
 a 1700 us ON followed by a 1700 us OFF, and after that it transmits very roughly 170 ms of signals.
 Given a single bit has either 800 or 1660 us, if the majority of bits is 0, I can assume 1 ms time per bit and hence 170 bits in the message.
-That would be a total of 21 bytes. Quite a bit less than the 35 bytes found by Mr. Blafois.
+That would be a total of 21 bytes. Quite a bit less than the 35 bytes found by Mr. Blafois. It appears that the coding is different between the
+two remotes and I can probably not use his results (if I am lucky, I can partially use some of it).
 
 ## Motivation
 
