@@ -1,5 +1,16 @@
 # Daikin-IR-Reverse
 
+## Lecostarius motivation
+
+I wanted to enable the AC system in a home automation environment of my own design.
+I found this very cool repository and forked it.
+Unfortunately, I do not have the same Daikin IR remote control, mine is a **ARC480A78**. I did a rough analysis using the oscilloscope, and
+found that there is a 38 kHz carrier, and that the pulse coding seems to be the same, with 400 us ON and either 400 us or 1260 us OFF for 0 or 1 bits.
+However, my remote creates a preamble of 6 "0" bits when the button is pressed, and after that, a pause of 30 ms. After the pause, it launches
+a 1700 us ON followed by a 1700 us OFF, and after that it transmits very roughly 170 ms of signals.
+Given a single bit has either 800 or 1660 us, if the majority of bits is 0, I can assume 1 ms time per bit and hence 170 bits in the message.
+That would be a total of 21 bytes. Quite a bit less than the 35 bytes found by Mr. Blafois.
+
 ## Motivation
 
 The motivation of reversing the Daikin Infrared protocol was to enable my AC system in HomeKit using HomeBridge.
