@@ -20,9 +20,49 @@ Given a single bit has either 800 or 1660 us, if the majority of bits is 0, I ca
 That would be a total of 21 bytes. Quite a bit less than the 35 bytes found by Mr. Blafois. It appears that the coding is different between the
 two remotes and I can probably not use his results (if I am lucky, I can partially use some of it).
 
-## Motivation
+## pre experiments by Lecostarius
 
-The motivation of reversing the Daikin Infrared protocol was to enable my AC system in HomeKit using HomeBridge.
+The IRremoteESP8266 project does not compile for ESP32 modules, only for ESP8266. I have exactly one Node MCU still available; using this
+with D5 as input for my IR receiver works - I can get some numbers, from a Sony remote it appears kinda repeatable, from the Daikin remote less so:
+Example with Sony, executable IRrecvDemo:
+```
+10
+type:4
+810
+type:4
+810
+type:4
+A90
+type:4
+EA2CA9E8
+type:-1
+```
+The code 10 refers to key 1 on the remote, the 810 to key 5, the A90 to the ON/OFF key. Type 4 means Sony protocol decoded. Often, the decoding
+seems to fail and the result is like in the last case, EA2CA9E8, and a type of -1 to indicate failure. When I try this demo with my Daikin remote,
+and using the OFF key, the result is like this:
+
+```
+B3E2CB06
+type:-1
+AF1C2E0C
+type:-1
+B3E2CB06
+type:-1
+33EF3D7C
+type:-1
+4068375F
+type:-1
+```
+The line B3E2CB06 is repeatable, the rest is not - I think the reason is that some time is used to print the result of the first call, and this
+time is a bit variable, and that the code is actually longer than what is received in a single call. So when the second call starts, some pulses 
+will already have happened while the printing was going on, and there is no correct synchronization any more. 
+
+I need to experiment further to get a fully robust result with a simple protocol like the Sony, and to get the long result from the Daikin accepted
+better. And then I can check whether my remote does something similar as the other Daikin remotes and I can use their IR codes.
+
+The code is in my Arduino folder under 8266 stuff. With VSCode I can load the corresponding library, in the Arduino/libraries/IRRemoteESP8266/ folder.
+
+
 
 ## Approach
 
