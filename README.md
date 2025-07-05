@@ -169,13 +169,15 @@ that the actual ON time is 490 us (not 420), and OFF is either 380 us or 1320 us
 is 160 bit. However, obviously this also counts the 6 preamble bits and what I call the start sequence (for a total of 7 bit), so that the payload might be just 153 bits - fairly close to my estimate of 150 bit, 
 so even this might be both complete and accurate.
 
-I checked, and the first 32 bit (4 bytes) of the payload are identical for the OFF key and the AUTO key on the remote. So, it seems there is a header sequence that probably identifies the type of the remote -
-this is a conjecture based on the fact that my header sequence is not identical to the one found by Mr Blafois. I see a
+I checked, and the first 32 bit (4 bytes) of the payload are identical for the OFF key and the AUTO key on the remote. So, it seems there is some sort of a header sequence.
+I see a
 
 ```
-1000 1000 0101 1011 1110 0100 0000 0000 (88 5B E4 00)
+1000 1000 0101 1011 1110 0100 0000 0000 (88 5B E4 00 in MSB reading, 11 DA 27 00 in LSB reading)
 ```
 This assumes that the start sequence (the very long ON and the very long OFF after the long pause) are not coding anything.
+
+Apparently, my remote is using exactly the same header string as the one analyzed by Mr Blafois. But, well, my sequence appears shorter. Further analysis is required.
 
 
 
