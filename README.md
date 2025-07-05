@@ -5,7 +5,9 @@
 I wanted to enable the AC system in a home automation environment of my own design.
 I found this very cool repository and forked it.
 There are other IR libraries, like https://github.com/Arduino-IRremote/Arduino-IRremote and https://github.com/crankyoldgit/IRremoteESP8266
-which are both official Arduino libraries and can be installed using the Arduino IDE. Also, there is a big project that unfortunately is 
+which are both official Arduino libraries and can be installed using the Arduino IDE. Inside the IRremoteESP8266 project there is even a
+file https://github.com/crankyoldgit/IRremoteESP8266/blob/master/src/ir_Daikin.cpp which lists a bunch of references to other projects
+and websites that also dealt with Daikin remotes. Also, there is a big project that unfortunately is 
 all written in Java and hence unsuitable for embedded platforms under https://www.harctoolbox.org, quite interesting as really simplified
 hardware is used is https://www.harctoolbox.org/arduino_nano.html
 
