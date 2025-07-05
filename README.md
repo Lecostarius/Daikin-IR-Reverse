@@ -12,13 +12,23 @@ all written in Java and hence unsuitable for embedded platforms under https://ww
 hardware is used is https://www.harctoolbox.org/arduino_nano.html. The Arduino Nano can drive 40 mA current with its GPIO pins, whereas the
 RP2350 can not source more than 12 mA, and even that must be configured (standard is 4 mA).
 
-Unfortunately, I do not have the same Daikin IR remote control, mine is a **ARC480A78**. I did a rough analysis using the oscilloscope, and
-found that there is a 38 kHz carrier, and that the pulse coding seems to be the same, with 400 us ON and either 400 us or 1260 us OFF for 0 or 1 bits.
-However, my remote creates a preamble of 6 "0" bits when the button is pressed, and after that, a pause of 30 ms. After the pause, it launches
-a 1700 us ON followed by a 1700 us OFF, and after that it transmits very roughly 170 ms of signals.
-Given a single bit has either 800 or 1660 us, if the majority of bits is 0, I can assume 1 ms time per bit and hence 170 bits in the message.
-That would be a total of 21 bytes. Quite a bit less than the 35 bytes found by Mr. Blafois. It appears that the coding is different between the
-two remotes and I can probably not use his results (if I am lucky, I can partially use some of it).
+Unfortunately, I do not have the same Daikin IR remote control, mine is a **ARC480A78**. 
+
+![daikin1](https://github.com/user-attachments/assets/7583744a-645e-47c6-b980-6723a0c98584)
+
+Since the remotes tend to transmit the entire state into one long sequence, there should be fields in the protocol for
+
+- desired temperature
+- fan on/off
+- two bits for two swing modes (left/right and up/down)
+- the pure fan mode
+- cool mode
+- heat mode
+- the timer: at least two time values
+- powerful mode
+- comfort mode
+- econo mode
+  
 
 ## pre experiments by Lecostarius
 
@@ -100,7 +110,7 @@ in pulses where the information is coded into the length of the OFF time: each O
 the 400 us OFF time as a logical 0 and the 1260 us OFF time as a logical one. The total length is really difficult to count on the oscilloscope screen. Just
 by total length, my estimate is that roughly 150 bit are transmitted.
 
-When running IRrecvDumpV3, the result is as follows. Unfortunately, the protocol is UNKNOWN. Here, I hit the OFF button:
+When running IRrecvDumpV3, the result is as follows. Unfortunately, the protocol is UNKNOWN. Here, I hit the yellow OFF button on the remote:
 
 ```
 Library   : v2.8.6
