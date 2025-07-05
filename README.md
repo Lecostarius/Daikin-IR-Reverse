@@ -37,7 +37,7 @@ type:4
 EA2CA9E8
 type:-1
 ```
-The code 10 refers to key 1 on the remote, the 810 to key 5, the A90 to the ON/OFF key. Type 4 means Sony protocol decoded. Often, the decoding
+The code 10 refers to numeric key "1" on the remote, the 810 to key 2, the A90 to the ON/OFF key. Type 4 means Sony protocol decoded. Often, the decoding
 seems to fail and the result is like in the last case, EA2CA9E8, and a type of -1 to indicate failure. When I try this demo with my Daikin remote,
 and using the OFF key, the result is like this:
 
