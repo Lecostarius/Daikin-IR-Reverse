@@ -53,12 +53,111 @@ type:-1
 4068375F
 type:-1
 ```
-The line B3E2CB06 is repeatable, the rest is not - I think the reason is that some time is used to print the result of the first call, and this
-time is a bit variable, and that the code is actually longer than what is received in a single call. So when the second call starts, some pulses 
-will already have happened while the printing was going on, and there is no correct synchronization any more. 
+The recommended program to read out a remote is IRrecvDumpVx, with a V2 and a V3 available. Though the V3 seems to have mostly over-the-air update
+capability as difference to V2, I tried both, and since V3 works, I will stick to that. This program yields more stable and useful output. Here is
+one sample output using a Sony remote using the ON/OFF button:
 
-I need to experiment further to get a fully robust result with a simple protocol like the Sony, and to get the long result from the Daikin accepted
-better. And then I can check whether my remote does something similar as the other Daikin remotes and I can use their IR codes.
+```
+Library   : v2.8.6
+
+Protocol  : SONY
+Code      : 0xA90 (12 Bits)
+Raw Timing[103]:
+   +  2354, -   630,    +  1174, -   630,    +   572, -   630,    +  1174, -   630, 
+   +   572, -   632,    +  1172, -   630,    +   572, -   630,    +   572, -   630, 
+   +  1174, -   630,    +   572, -   630,    +   572, -   630,    +   572, -   630, 
+   +   572, - 25872,    +  2374, -   632,    +  1172, -   632,    +   570, -   632, 
+   +  1174, -   604,    +   572, -   630,    +  1174, -   632,    +   572, -   630, 
+   +   572, -   630,    +  1174, -   630,    +   572, -   630,    +   572, -   630, 
+   +   572, -   630,    +   572, - 25796,    +  2378, -   630,    +  1174, -   630, 
+   +   572, -   630,    +  1174, -   630,    +   572, -   630,    +  1174, -   630, 
+   +   572, -   630,    +   572, -   630,    +  1174, -   630,    +   572, -   630, 
+   +   572, -   630,    +   572, -   630,    +   572, - 25798,    +  2376, -   630, 
+   +  1172, -   632,    +   572, -   630,    +  1172, -   630,    +   572, -   630, 
+   +  1172, -   630,    +   572, -   630,    +   572, -   630,    +  1174, -   630, 
+   +   572, -   630,    +   574, -   628,    +   572, -   630,    +   574
+
+uint16_t rawData[103] = {2354, 630,  1174, 630,  572, 630,  1174, 630,  572, 632,  1172, 630,  572, 630,  572, 630,  1174, 630,  572, 630,  572, 630,  572, 630,  572, 25872,  2374, 632,  1172, 632,  570, 632,  1174, 604,  572, 630,  1174, 632,  572, 630,  572, 630,  1174, 630,  572, 630,  572, 630,  572, 630,  572, 25796,  2378, 630,  1174, 630,  572, 630,  1174, 630,  572, 630,  1174, 630,  572, 630,  572, 630,  1174, 630,  572, 630,  572, 630,  572, 630,  572, 25798,  2376, 630,  1172, 632,  572, 630,  1172, 630,  572, 630,  1172, 630,  572, 630,  572, 630,  1174, 630,  572, 630,  574, 628,  572, 630,  574};  // SONY A90
+uint32_t address = 0x1;
+uint32_t command = 0x15;
+uint64_t data = 0xA90;
+
+```
+The address is 0x1 for the TV and 0x97 for a VCR (the remote has some buttons that are not meant for the TV but for a VCR). I analyzed the Sony remote
+with the oscilloscope and found that it starts with a 2400 us start impulse, and after that, always has 600 us OFF and either 600 us ON (for what I think
+a 0 bit is), or 1400 ms ON (for a 1 bit). There are 12 bit of data for most keys, some have 15 bits.
+
+I can find most of this in the result above. We start with a 2354 us ON impulse, then I see the 600 (actually 630) us OFF, followed by a 1 (1174 us ON) -
+my oscilloscope measurement of 1400 us was apparently a bit off. The entire sequence here is 1-0-1-0-1-0-0-1-0-0-0-0. Then, we see a 26 ms break (with 
+nothing transmitted), and after that, the entire sequence is repeated (since it appears I pushed the button for a long time). There is a total of 4 repeats
+in the measurement above.
+
+Now, the Daikin. 
+
+I tried again with the oscilloscope. The Daikin uses a preamble of six pulses of 420 us each (with a OFF time in-between of also 420 us). After the preamble,
+there is a long (roughly 30000 us) pause, and after that, there is a start code of 1700 us ON and 1700 us OFF. After this, the information is transmitted
+in pulses where the information is coded into the length of the OFF time: each ON pulse has 400 us, and the OFF time is either 400 or 1260 us. I interpret
+the 400 us OFF time as a logical 0 and the 1260 us OFF time as a logical one. The total length is really difficult to count on the oscilloscope screen. Just
+by total length, my estimate is that roughly 150 bit are transmitted.
+
+When running IRrecvDumpV3, the result is as follows. Unfortunately, the protocol is UNKNOWN. Here, I hit the OFF button:
+
+```
+Library   : v2.8.6
+
+Protocol  : UNKNOWN
+Code      : 0x2444E4FE (160 Bits)
+Raw Timing[319]:
+   +   382, -   470,    +   430, -   436,    +   430, -   438,    +   430, -   440, 
+   +   430, -   440,    +   430, - 25444,    +  3452, -  1764,    +   408, -  1330, 
+   +   406, -   442,    +   428, -   440,    +   430, -   440,    +   430, -  1308, 
+   +   430, -   440,    +   430, -   438,    +   430, -   440,    +   430, -   440, 
+   +   430, -  1310,    +   430, -   438,    +   430, -  1312,    +   430, -  1306, 
+   +   430, -   440,    +   428, -  1330,    +   408, -  1310,    +   430, -  1312, 
+   +   428, -  1330,    +   408, -  1310,    +   430, -   438,    +   430, -   438, 
+   +   430, -  1332,    +   406, -   440,    +   430, -   440,    +   430, -   438, 
+   +   430, -   442,    +   428, -   440,    +   428, -   438,    +   430, -   438, 
+   +   430, -   442,    +   430, -   436,    +   430, -   440,    +   430, -   440, 
+   +   430, -   438,    +   428, -   438,    +   430, -   438,    +   430, -   440, 
+   +   430, -   440,    +   430, -   436,    +   430, -   440,    +   430, -   438, 
+   +   430, -   440,    +   430, -   438,    +   430, -   440,    +   430, -   440, 
+   +   430, -   444,    +   430, -   432,    +   430, -   440,    +   430, -   438, 
+   +   430, -  1332,    +   384, -   464,    +   430, -   438,    +   430, -  1330, 
+   +   408, -  1330,    +   404, -   444,    +   430, -   438,    +   430, -   440, 
+   +   430, -   438,    +   430, -   440,    +   428, -   440,    +   430, -   440, 
+   +   430, -   436,    +   430, -   438,    +   430, -   440,    +   430, -   438, 
+   +   430, -   440,    +   430, -   438,    +   430, -   438,    +   430, -   440, 
+   +   430, -  1328,    +   382, -   464,    +   432, -  1328,    +   408, -  1332, 
+   +   408, -  1330,    +   410, -  1328,    +   382, -  1358,    +   382, -   462, 
+   +   430, -   442,    +   430, -   438,    +   430, -   436,    +   430, -   440, 
+   +   430, -   442,    +   430, -   438,    +   430, -   440,    +   430, -   436, 
+   +   430, -   440,    +   430, -   434,    +   432, -   438,    +   432, -   440, 
+   +   430, -   386,    +   482, -   436,    +   432, -   440,    +   426, -   440, 
+   +   406, -   462,    +   432, -   440,    +   428, -   450,    +   428, -   458, 
+   +   378, -   490,    +   380, -   490,    +   402, -   462,    +   382, -   490, 
+   +   380, -   488,    +   402, -   468,    +   378, -   418,    +   450, -   490, 
+   +   380, -   490,    +   404, -   464,    +   378, -   490,    +   378, -   492, 
+   +   378, -   490,    +   378, -   488,    +   378, -   492,    +   378, -   490, 
+   +   378, -   488,    +   376, -   492,    +   380, -   490,    +   378, -   490, 
+   +   378, -   492,    +   378, -   490,    +   356, -   522,    +   378, -  1352, 
+   +   380, -   490,    +   378, -  1358,    +   382, -   488,    +   380, -   490, 
+   +   382, -   486,    +   382, -  1336,    +   402, -  1332,    +   428, -   466, 
+   +   406, -  1330,    +   408, -   462,    +   408, -   462,    +   408, -   462, 
+   +   408, -   458,    +   408, -  1310,    +   430, -   462,    +   406, -   462, 
+   +   380, -   490,    +   404, -   464,    +   380, -  1334,    +   428, -   468, 
+   +   380, -   486,    +   380, -   490,    +   380, -   490,    +   380, -   488, 
+   +   380, -  1338,    +   402, -   466,    +   424, -   446,    +   400, -   468, 
+   +   400, -   468,    +   426, -   444,    +   400, -   468,    +   400
+
+uint16_t rawData[319] = {382, 470,  430, 436,  430, 438,  430, 440,  430, 440,  430, 25444,  3452, 1764,  408, 1330,  406, 442,  428, 440,  430, 440,  430, 1308,  430, 440,  430, 438,  430, 440,  430, 440,  430, 1310,  430, 438,  430, 1312,  430, 1306,  430, 440,  428, 1330,  408, 1310,  430, 1312,  428, 1330,  408, 1310,  430, 438,  430, 438,  430, 1332,  406, 440,  430, 440,  430, 438,  430, 442,  428, 440,  428, 438,  430, 438,  430, 442,  430, 436,  430, 440,  430, 440,  430, 438,  428, 438,  430, 438,  430, 440,  430, 440,  430, 436,  430, 440,  430, 438,  430, 440,  430, 438,  430, 440,  430, 440,  430, 444,  430, 432,  430, 440,  430, 438,  430, 1332,  384, 464,  430, 438,  430, 1330,  408, 1330,  404, 444,  430, 438,  430, 440,  430, 438,  430, 440,  428, 440,  430, 440,  430, 436,  430, 438,  430, 440,  430, 438,  430, 440,  430, 438,  430, 438,  430, 440,  430, 1328,  382, 464,  432, 1328,  408, 1332,  408, 1330,  410, 1328,  382, 1358,  382, 462,  430, 442,  430, 438,  430, 436,  430, 440,  430, 442,  430, 438,  430, 440,  430, 436,  430, 440,  430, 434,  432, 438,  432, 440,  430, 386,  482, 436,  432, 440,  426, 440,  406, 462,  432, 440,  428, 450,  428, 458,  378, 490,  380, 490,  402, 462,  382, 490,  380, 488,  402, 468,  378, 418,  450, 490,  380, 490,  404, 464,  378, 490,  378, 492,  378, 490,  378, 488,  378, 492,  378, 490,  378, 488,  376, 492,  380, 490,  378, 490,  378, 492,  378, 490,  356, 522,  378, 1352,  380, 490,  378, 1358,  382, 488,  380, 490,  382, 486,  382, 1336,  402, 1332,  428, 466,  406, 1330,  408, 462,  408, 462,  408, 462,  408, 458,  408, 1310,  430, 462,  406, 462,  380, 490,  404, 464,  380, 1334,  428, 468,  380, 486,  380, 490,  380, 490,  380, 488,  380, 1338,  402, 466,  424, 446,  400, 468,  400, 468,  426, 444,  400, 468,  400};  // UNKNOWN 2444E4FE
+
+```
+
+
+When comparing this with my oscilloscope measurement, I can clearly see the six preamble pulses and the long pause. The start pulse is different though, it is not 1700 us ON and 1700 us OFF but rather 3400 us ON and 1700 us OFF. After that, I can see 
+that the actual ON time is 490 us (not 420), and OFF is either 380 us or 1320 us. This is reasonably close to what I see with the oscilloscope, so I tend to believe that the analysis is OK. The length of the decoded sequence
+is 160 bit - fairly close to my estimate of 150 bit, so even this might be both complete and accurate.
+
 
 The code is in my Arduino folder under 8266 stuff. With VSCode I can load the corresponding library, in the Arduino/libraries/IRRemoteESP8266/ folder.
 
