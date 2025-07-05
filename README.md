@@ -156,7 +156,17 @@ uint16_t rawData[319] = {382, 470,  430, 436,  430, 438,  430, 440,  430, 440,  
 
 When comparing this with my oscilloscope measurement, I can clearly see the six preamble pulses and the long pause. The start pulse is different though, it is not 1700 us ON and 1700 us OFF but rather 3400 us ON and 1700 us OFF. After that, I can see 
 that the actual ON time is 490 us (not 420), and OFF is either 380 us or 1320 us. This is reasonably close to what I see with the oscilloscope, so I tend to believe that the analysis is OK. The length of the decoded sequence
-is 160 bit - fairly close to my estimate of 150 bit, so even this might be both complete and accurate.
+is 160 bit. However, obviously this also counts the 6 preamble bits and what I call the start sequence (for a total of 7 bit), so that the payload might be just 153 bits - fairly close to my estimate of 150 bit, 
+so even this might be both complete and accurate.
+
+I checked, and the first 32 bit (4 bytes) of the payload are identical for the OFF key and the AUTO key on the remote. So, it seems there is a header sequence that probably identifies the type of the remote -
+this is a conjecture based on the fact that my header sequence is not identical to the one found by Mr Blafois. I see a
+
+```
+1000 1000 0101 1011 1110 0100 0000 0000 (88 5B E4 00)
+```
+This assumes that the start sequence (the very long ON and the very long OFF after the long pause) are not coding anything.
+
 
 
 The code is in my Arduino folder under 8266 stuff. With VSCode I can load the corresponding library, in the Arduino/libraries/IRRemoteESP8266/ folder.
