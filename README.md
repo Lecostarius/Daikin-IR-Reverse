@@ -9,7 +9,8 @@ which are both official Arduino libraries and can be installed using the Arduino
 file https://github.com/crankyoldgit/IRremoteESP8266/blob/master/src/ir_Daikin.cpp which lists a bunch of references to other projects
 and websites that also dealt with Daikin remotes. Also, there is a big project that unfortunately is 
 all written in Java and hence unsuitable for embedded platforms under https://www.harctoolbox.org, quite interesting as really simplified
-hardware is used is https://www.harctoolbox.org/arduino_nano.html
+hardware is used is https://www.harctoolbox.org/arduino_nano.html. The Arduino Nano can drive 40 mA current with its GPIO pins, whereas the
+RP2350 can not source more than 12 mA, and even that must be configured (standard is 4 mA).
 
 Unfortunately, I do not have the same Daikin IR remote control, mine is a **ARC480A78**. I did a rough analysis using the oscilloscope, and
 found that there is a 38 kHz carrier, and that the pulse coding seems to be the same, with 400 us ON and either 400 us or 1260 us OFF for 0 or 1 bits.
