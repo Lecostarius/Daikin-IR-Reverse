@@ -191,7 +191,7 @@ And for 23.5:
 And for the lowest possible temperature, 18:
 11,DA,27,00,00,01,24,00,A0,0F,00,00,00,00,00,C5,02,08,B5,remain:1 remaining bits: 0
 
-Obviously, temperature - in half degree steps - is coded into the last byte of the transmitted sequence.
+Temperature - in half degree steps - is coded into the seventh byte of the transmitted sequence (the last byte(s) appear to be a checksum).
 
 I observe the following. If I change only temperature, the remote will send another command, and this one - as opposed to the green AUTO button - is
 recognized by the library as DAIKIN152 protocol and properly decoded! This command has only 152 bits, not 160. 
