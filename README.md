@@ -179,7 +179,24 @@ This assumes that the start sequence (the very long ON and the very long OFF aft
 
 Apparently, my remote is using exactly the same header string as the one analyzed by Mr Blafois. But, well, my sequence appears shorter. Further analysis is required.
 
+Here is what I get if I hit the green AUTO button at 24 set temperature:
+11,DA,27,00,00,01,30,00,A0,0F,00,00,00,00,00,C5,02,08,C1,remain:1 remaining bits: 0
 
+And here for 23 set temperature:
+11,DA,27,00,00,01,2E,00,A0,0F,00,00,00,00,00,C5,02,08,BF,remain:1 remaining bits: 0
+
+And for 23.5:
+11,DA,27,00,00,01,2F,00,A0,0F,00,00,00,00,00,C5,02,08,C0,remain:1 remaining bits: 0
+
+And for the lowest possible temperature, 18:
+11,DA,27,00,00,01,24,00,A0,0F,00,00,00,00,00,C5,02,08,B5,remain:1 remaining bits: 0
+
+Obviously, temperature - in half degree steps - is coded into the last byte of the transmitted sequence.
+
+I observe the following. If I change only temperature, the remote will send another command, and this one - as opposed to the green AUTO button - is
+recognized by the library as DAIKIN152 protocol and properly decoded! This command has only 152 bits, not 160. 
+
+Sometimes, even the green AUTO button is recognized as DAIKIN152 protocol. 
 
 The code is in my Arduino folder under 8266 stuff. With VSCode I can load the corresponding library, in the Arduino/libraries/IRRemoteESP8266/ folder.
 
