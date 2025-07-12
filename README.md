@@ -3,6 +3,12 @@
 ## Lecostarius motivation
 
 I wanted to enable the AC system in a home automation environment of my own design.
+There are several info websites I need to evaluate, mostly, price at the EPEX (epexspot.com, https://www.vattenfall.de/strom/tarife/oekostrom-dynamik-boersenpreise);
+others, more of interest than of automatic value, are https://www.energy-charts.info, https://www.zeit.de/wirtschaft/energiemonitor-strompreis-gaspreis-erneuerbare-energien-ausbau.
+And, I need weather information for a good forecast of my solar harvest. DWD gives this information, ready to download, there is a special server for it: opendata.dwd.de
+with some info at https://www.dwd.de/DE/leistungen/opendata/opendata.html.
+
+
 I found this very cool repository and forked it.
 There are other IR libraries, like https://github.com/Arduino-IRremote/Arduino-IRremote and https://github.com/crankyoldgit/IRremoteESP8266
 which are both official Arduino libraries and can be installed using the Arduino IDE. Inside the IRremoteESP8266 project there is even a
