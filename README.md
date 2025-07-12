@@ -198,6 +198,14 @@ recognized by the library as DAIKIN152 protocol and properly decoded! This comma
 
 Sometimes, even the green AUTO button is recognized as DAIKIN152 protocol. 
 
+I tried the demo sketch TurnOnDaikinAC. It is not meant for my remote, I had to change a few things, but now I am able to switch on my AC using
+this sketch.
+
+I tried to run it on ESP32, but that does not work, despite some comments in the source code. The issue is mainly with some hardware timer classes.
+
+There is another Arduino library, called IRRemote, which is more modern and supports also ESP32. However, this one has less protocols covered, in particular,
+it does not cover my Daikin (nor any other AC, as far as I can see).
+
 The code is in my Arduino folder under 8266 stuff. With VSCode I can load the corresponding library, in the Arduino/libraries/IRRemoteESP8266/ folder.
 
 
